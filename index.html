@@ -136,7 +136,7 @@ body.onboarding .tabbar{display:none}
 .screen-title{font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--ink);letter-spacing:-1px;line-height:1}
 .screen-title em{color:var(--accent);font-style:italic}
 .screen-sub{font-size:14px;color:var(--ink-light);margin-top:6px}
-.filter-row{display:flex;gap:8px;overflow-x:auto;padding:0 24px 18px;scrollbar-width:none}
+.filter-row{display:flex;gap:8px;overflow-x:auto;padding:4px 24px 18px;scrollbar-width:none}
 .filter-row::-webkit-scrollbar{display:none}
 .section-block{padding:0 24px;margin-bottom:24px}
 .hist-entry{background:var(--white);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow-soft);transition:transform .2s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:flex-start;gap:14px}
@@ -225,7 +225,7 @@ textarea.finput{resize:none;line-height:1.5}
 .hist-act.del{color:#B33A2B}
 .hist-act svg{width:12px;height:12px}
 /* TOAST */
-.toast{position:fixed;top:56px;left:50%;transform:translateX(-50%) translateY(-70px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(28,18,8,.25)}
+.toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%) translateY(-70px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(28,18,8,.25)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 svg.ico{width:20px;height:20px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.ink{stroke:var(--ink)}svg.ico.light{stroke:var(--ink-light)}svg.ico.mid{stroke:var(--ink-mid)}
@@ -340,8 +340,22 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   </div>
   <div class="don-note">Elegís el monto al donar, según tu moneda. Cada peso va al servidor, el dominio y el tiempo que le dedicamos.</div>
   <div style="padding:0 24px;">
-    <button class="btn-p" onclick="showToast('¡Gracias por querer a Soji!')">Apoyar ahora</button>
+    <button class="btn-p" onclick="openModal('m-donar')">Apoyar ahora</button>
     <button class="btn-g" onclick="showScreen('perfil');showToast('¡Está bien! Soji sigue siendo gratis')">Quizás en otro momento</button>
+  </div>
+</div>
+<!-- DONAR: DATOS DE TRANSFERENCIA -->
+<div class="overlay" id="m-donar" onclick="closeOverlay('m-donar',event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title"><span class="quick-icon green"><svg class="ico green" viewBox="0 0 20 20"><path d="M10 16s-7-4.5-7-9a4 4 0 018 0 4 4 0 018 0c0 4.5-7 9-7 9z"/></svg></span>¡Gracias por apoyar!</div>
+    <div class="info-card" style="margin:0 0 14px;">
+      <div class="info-card-header">Transferencia (Argentina)</div>
+      <div class="info-row"><span class="info-key">Alias</span><span class="info-val" id="don-alias"></span></div>
+      <div class="info-row"><span class="info-key">Titular</span><span class="info-val" id="don-titular"></span></div>
+    </div>
+    <button class="btn-p" onclick="copyAlias()">Copiar alias</button>
+    <button class="btn-g" onclick="closeOverlay('m-donar')">Volver</button>
   </div>
 </div>
 <!-- ════ PERFIL ════ -->
@@ -449,7 +463,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
     <div class="sheet-handle"></div>
     <div class="sheet-title"><span class="quick-icon dark"><svg class="ico mid" viewBox="0 0 20 20"><path d="M3 7h14l-2 10H5L3 7z"/><path d="M7 7a3 3 0 016 0"/></svg></span>Registrar peso</div>
     <div class="frow">
-      <div class="fg"><label class="flabel">Peso (kg)</label><input class="finput" id="w-kg" type="number" step="0.1" inputmode="decimal" placeholder="Ej: 28.5"></div>
+      <div class="fg"><label class="flabel">Peso (kg)</label><input class="finput" id="w-kg" type="text" inputmode="decimal" placeholder="Ej: 4,5"></div>
       <div class="fg"><label class="flabel">Fecha</label><input class="finput" id="w-date" type="date"></div>
     </div>
     <button class="btn-p" onclick="savePeso()">Listo, guardar</button>
@@ -476,7 +490,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
     <div class="fg" style="margin-top:14px;"><label class="flabel">Raza</label><input class="finput" id="pm-breed" type="text" placeholder="Ej: Golden Retriever, mestizo…"></div>
     <div class="frow">
       <div class="fg"><label class="flabel">Nacimiento</label><input class="finput" id="pm-birth" type="date"></div>
-      <div class="fg" id="pm-weight-wrap"><label class="flabel">Peso (kg)</label><input class="finput" id="pm-weight" type="number" step="0.1" inputmode="decimal" placeholder="Aprox."></div>
+      <div class="fg" id="pm-weight-wrap"><label class="flabel">Peso (kg)</label><input class="finput" id="pm-weight" type="text" inputmode="decimal" placeholder="Aprox."></div>
     </div>
     <div class="fg"><label class="flabel">Sexo</label>
       <div class="chips" id="pm-sex">
@@ -492,6 +506,8 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
 <script>
 /* ───── DATOS ───── */
 const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+/* datos de donación — reemplazar por los reales */
+const DONACION = { alias: 'soji.app.mp', titular: 'Facundo Carmona' };
 let DB = load();
 let histFilter = 'todo';
 let formPhoto = null;
@@ -551,6 +567,10 @@ function ageOf(birth) {
   if (months < 12) return months <= 1 ? '1 mes' : months + ' meses';
   const y = Math.floor(months / 12);
   return y === 1 ? '1 año' : y + ' años';
+}
+function parseKg(s) {
+  /* acepta coma o punto decimal (teclado iOS en español usa coma) */
+  return parseFloat(String(s).trim().replace(',', '.'));
 }
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
@@ -853,7 +873,7 @@ function savePetForm() {
     Object.assign(pet(), data);
     showToast('Perfil de ' + name + ' actualizado');
   } else {
-    const kg = parseFloat(document.getElementById('pm-weight').value);
+    const kg = parseKg(document.getElementById('pm-weight').value);
     const np = Object.assign({ id: uid(), vaccines: [], dewormings: [], visits: [], weights: [] }, data);
     if (kg > 0) np.weights.push({ date: today(), kg: kg });
     DB.pets.push(np);
@@ -965,7 +985,7 @@ function saveVisita() {
   closeOverlay('m-visita'); renderAll(); showToast(edited ? 'Visita actualizada' : 'Visita registrada');
 }
 function savePeso() {
-  const kg = parseFloat(document.getElementById('w-kg').value);
+  const kg = parseKg(document.getElementById('w-kg').value);
   const date = document.getElementById('w-date').value;
   if (!(kg > 0) || !date) { showToast('Falta el peso o la fecha'); return; }
   const edited = upsert('peso', { date: date, kg: kg });
@@ -1065,6 +1085,13 @@ function checkReminders() {
     });
   });
 }
+/* ───── DONACIÓN ───── */
+function copyAlias() {
+  const done = () => showToast('Alias copiado: ' + DONACION.alias);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(DONACION.alias).then(done).catch(() => showToast(DONACION.alias));
+  } else { showToast(DONACION.alias); }
+}
 /* ───── NAVEGACIÓN / UI ───── */
 function renderAll() { renderInicio(); renderHistorial(); renderPerfil(); }
 function showScreen(name) {
@@ -1111,6 +1138,8 @@ function pickChip(el) {
     if (!DB.pets.find(p => p.id === DB.active)) DB.active = DB.pets[0].id;
     showScreen('inicio');
   }
+  document.getElementById('don-alias').textContent = DONACION.alias;
+  document.getElementById('don-titular').textContent = DONACION.titular;
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
