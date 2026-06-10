@@ -335,7 +335,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
     <div class="chip" data-f="peso" onclick="setFilter(this)">Peso</div>
   </div>
   <div class="section-block" id="hist-list"></div>
-  <button class="fab" onclick="openModal('m-registrar')">+</button>
+  <button class="fab" onclick="openRegSelector()">+</button>
 </div>
 <!-- ════ DONACIONES ════ -->
 <div class="screen" id="screen-donaciones">
@@ -369,6 +369,35 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
     <button class="btn-g" onclick="closeOverlay('m-donar')">Volver</button>
   </div>
 </div>
+<!-- ACCIONES DE ALERTA -->
+<div class="overlay" id="m-alerta" onclick="closeOverlay('m-alerta',event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="al-title">Vencimiento</div>
+    <button class="reg-opt" onclick="alertAction('redo')">
+      <span class="quick-icon green"><svg class="ico green" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M7 10l2 2 4-4"/></svg></span>
+      <span><span class="reg-opt-title">Ya se la dieron</span><div class="reg-opt-sub">Registrar la aplicación de hoy</div></span>
+    </button>
+    <button class="reg-opt" onclick="alertAction('ics')">
+      <span class="quick-icon orange"><svg class="ico accent" viewBox="0 0 20 20"><rect x="3" y="5" width="14" height="12" rx="2"/><path d="M3 9h14M7 3v4M13 3v4"/></svg></span>
+      <span><span class="reg-opt-title">Recordármelo en el calendario</span><div class="reg-opt-sub">Agrega un evento con aviso al teléfono</div></span>
+    </button>
+    <button class="reg-opt" onclick="alertAction('hist')">
+      <span class="quick-icon dark"><svg class="ico ink" viewBox="0 0 20 20"><path d="M4 6h12M4 10h8M4 14h6"/></svg></span>
+      <span><span class="reg-opt-title">Ver en el historial</span><div class="reg-opt-sub">Editar o revisar el registro</div></span>
+    </button>
+  </div>
+</div>
+<!-- CONFIRMACIÓN -->
+<div class="overlay" id="m-confirm" onclick="closeOverlay('m-confirm',event)">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">¿Estás seguro?</div>
+    <p id="cf-msg" style="font-size:14px;color:var(--ink-mid);line-height:1.6;margin-bottom:22px;"></p>
+    <button class="btn-p" id="cf-ok" style="background:#B33A2B;box-shadow:0 4px 16px rgba(179,58,43,.3);">Sí, eliminar</button>
+    <button class="btn-g" onclick="closeOverlay('m-confirm')">Mejor no</button>
+  </div>
+</div>
 <!-- ════ PERFIL ════ -->
 <div class="screen" id="screen-perfil">
   <div id="perfil-box"></div>
@@ -393,7 +422,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
 <div class="overlay" id="m-registrar" onclick="closeOverlay('m-registrar',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title">¿Qué querés registrar?</div>
+    <div class="sheet-title" id="reg-title">¿Qué querés registrar?</div>
     <button class="reg-opt" onclick="closeOverlay('m-registrar');openReg('m-vacuna')">
       <span class="quick-icon orange"><svg class="ico accent" viewBox="0 0 20 20"><path d="M9 5l6 6-2 2-6-6 2-2z"/><path d="M5 15l1-1M14 6l1-1"/></svg></span>
       <span><span class="reg-opt-title">Vacuna</span><div class="reg-opt-sub">Con fecha de refuerzo</div></span>
@@ -590,8 +619,8 @@ function esc(s) {
 /* ───── EVENTOS PRÓXIMOS ───── */
 function upcoming(p) {
   const ev = [];
-  (p.vaccines || []).forEach(v => { if (v.next) ev.push({ kind: 'vacuna', title: 'Vacuna ' + v.name, due: v.next }); });
-  (p.dewormings || []).forEach(d => { if (d.date && d.repeat) ev.push({ kind: 'desp', title: 'Desparasitación ' + d.type.toLowerCase(), due: addMonths(d.date, d.repeat) }); });
+  (p.vaccines || []).forEach(v => { if (v.next) ev.push({ kind: 'vacuna', id: v.id, title: 'Vacuna ' + v.name, due: v.next }); });
+  (p.dewormings || []).forEach(d => { if (d.date && d.repeat) ev.push({ kind: 'desp', id: d.id, title: 'Desparasitación ' + d.type.toLowerCase(), due: addMonths(d.date, d.repeat) }); });
   ev.forEach(e => e.days = daysUntil(e.due));
   return ev.filter(e => e.days <= 90).sort((a, b) => a.days - b.days);
 }
@@ -651,7 +680,7 @@ function renderInicio() {
       const red = e.days <= 7;
       const daysTxt = e.days < 0 ? '<div class="alert-pill-days" style="color:#B33A2B">¡!<small>vencida</small></div>'
         : '<div class="alert-pill-days"' + (red ? '' : ' style="color:var(--green)"') + '>' + e.days + '<small>días</small></div>';
-      return '<div class="alert-pill" onclick="showScreen(\'historial\')">' +
+      return '<div class="alert-pill" onclick="openAlertSheet(\'' + e.kind + '\',\'' + e.id + '\')">' +
         '<div class="alert-pill-dot ' + (red || e.days < 0 ? 'red' : 'green') + '">' +
         (e.kind === 'vacuna'
           ? '<svg class="ico accent" viewBox="0 0 20 20"><path d="M9 5l6 6-2 2-6-6 2-2z"/><path d="M5 15l1-1M14 6l1-1"/></svg>'
@@ -727,11 +756,20 @@ function renderHistorial() {
       '<svg viewBox="0 0 80 80" fill="#8FACA1"><use href="#paw"/></svg>' +
       '<div class="empty-title">' + m[0] + '</div>' +
       '<div class="empty-sub">' + m[1] + '</div>' +
-      '<button class="btn-p" onclick="openModal(\'m-registrar\')">Registrar algo</button></div>';
+      '<button class="btn-p" onclick="openRegSelector()">Registrar algo</button></div>';
     return;
   }
-  list.innerHTML = ev.map(e =>
-    '<div class="hist-entry">' + HIST_ICONS[e.type] +
+  /* agrupar por año cuando el historial abarca más de uno */
+  const years = new Set(ev.map(e => e.date.slice(0, 4)));
+  let lastYear = null;
+  list.innerHTML = ev.map(e => {
+    let header = '';
+    const y = e.date.slice(0, 4);
+    if (years.size > 1 && y !== lastYear) {
+      header = '<div class="section-label" style="margin:' + (lastYear ? '18px' : '0') + ' 0 12px">' + y + '</div>';
+      lastYear = y;
+    }
+    return header + '<div class="hist-entry">' + HIST_ICONS[e.type] +
     '<div class="hist-body"><div class="hist-title"><span>' + esc(e.title) + '</span>' +
     (e.type === 'vacuna' ? vacBadge(e.next) : '') + '</div>' +
     '<div class="hist-meta">' + esc(e.meta) + '</div>' +
@@ -741,8 +779,8 @@ function renderHistorial() {
     '<svg class="ico mid" viewBox="0 0 20 20"><path d="M13 4l3 3-8 8-4 1 1-4 8-8z"/></svg>Editar</button>' +
     '<button class="hist-act del" onclick="deleteRecord(\'' + e.type + '\',\'' + e.id + '\')">' +
     '<svg viewBox="0 0 20 20" fill="none" stroke="#B33A2B" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10"/></svg>Eliminar</button>' +
-    '</div></div></div>'
-  ).join('');
+    '</div></div></div>';
+  }).join('');
 }
 /* ───── RENDER: PERFIL ───── */
 function weightChartSVG(ws) {
@@ -896,19 +934,24 @@ function savePetForm() {
   if (document.body.classList.contains('onboarding')) {
     document.body.classList.remove('onboarding');
     showScreen('inicio');
+    /* activación: que la primera sesión termine con la app funcionando */
+    setTimeout(function () {
+      openRegSelector('¿Te acordás de su última vacuna o antiparasitario? Cargalo y te avisamos cuándo toca de nuevo.');
+    }, 900);
   } else { renderAll(); }
 }
 function deletePet() {
   const p = pet();
-  if (!confirm('¿Eliminar a ' + p.name + ' y todo su historial? Esto no se puede deshacer.')) return;
-  DB.pets = DB.pets.filter(x => x.id !== p.id);
-  DB.active = DB.pets.length ? DB.pets[0].id : null;
-  save();
-  closeOverlay('m-mascota');
-  if (!DB.pets.length) {
-    document.body.classList.add('onboarding');
-    showScreen('onboarding');
-  } else { renderAll(); showScreen('inicio'); }
+  askConfirm('Vas a eliminar a ' + p.name + ' y todo su historial. Esto no se puede deshacer.', 'Sí, eliminar a ' + p.name, function () {
+    DB.pets = DB.pets.filter(x => x.id !== p.id);
+    DB.active = DB.pets.length ? DB.pets[0].id : null;
+    save();
+    closeOverlay('m-mascota');
+    if (!DB.pets.length) {
+      document.body.classList.add('onboarding');
+      showScreen('onboarding');
+    } else { renderAll(); showScreen('inicio'); }
+  });
 }
 function switchPet(id) { DB.active = id; save(); renderAll(); }
 /* ───── GUARDAR REGISTROS ───── */
@@ -954,10 +997,11 @@ function openEdit(type, id) {
 }
 function deleteRecord(type, id) {
   const labels = { vacuna: 'esta vacuna', desp: 'esta desparasitación', visita: 'esta visita', peso: 'este registro de peso' };
-  if (!confirm('¿Eliminar ' + labels[type] + '? Esto no se puede deshacer.')) return;
-  const p = pet();
-  p[REC_KEYS[type]] = (p[REC_KEYS[type]] || []).filter(r => r.id !== id);
-  save(); renderAll(); showToast('Registro eliminado');
+  askConfirm('Vas a eliminar ' + labels[type] + '. Esto no se puede deshacer.', 'Sí, eliminar', function () {
+    const p = pet();
+    p[REC_KEYS[type]] = (p[REC_KEYS[type]] || []).filter(r => r.id !== id);
+    save(); renderAll(); showToast('Registro eliminado');
+  });
 }
 function upsert(type, data) {
   if (editing && editing.type === type) {
@@ -1028,19 +1072,20 @@ function importData() {
         const db = parsed && parsed.app === 'soji' ? parsed.data : parsed;
         if (!db || !Array.isArray(db.pets)) throw new Error('formato');
         const names = db.pets.map(p => p.name).join(', ') || '(sin mascotas)';
-        if (!confirm('Esto reemplaza los datos actuales por el respaldo (' + db.pets.length + ' mascota/s: ' + names + '). ¿Continuar?')) return;
-        migrate(db);
-        DB = db;
-        if (!DB.pets.find(p => p.id === DB.active)) DB.active = DB.pets.length ? DB.pets[0].id : null;
-        save();
-        if (DB.pets.length) {
-          document.body.classList.remove('onboarding');
-          renderAll(); showScreen('inicio');
-        } else {
-          document.body.classList.add('onboarding');
-          showScreen('onboarding');
-        }
-        showToast('Datos restaurados');
+        askConfirm('Esto reemplaza los datos actuales por el respaldo (' + db.pets.length + ' mascota/s: ' + names + ').', 'Sí, restaurar', function () {
+          migrate(db);
+          DB = db;
+          if (!DB.pets.find(p => p.id === DB.active)) DB.active = DB.pets.length ? DB.pets[0].id : null;
+          save();
+          if (DB.pets.length) {
+            document.body.classList.remove('onboarding');
+            renderAll(); showScreen('inicio');
+          } else {
+            document.body.classList.add('onboarding');
+            showScreen('onboarding');
+          }
+          showToast('Datos restaurados');
+        });
       } catch (e) { showToast('Ese archivo no parece un respaldo de Soji'); }
     };
     reader.readAsText(f);
@@ -1095,6 +1140,81 @@ function checkReminders() {
       notify('Soji · ' + p.name, e.title + ' ' + when);
     });
   });
+}
+/* ───── ALERTAS: ACCIONES ───── */
+let alertCtx = null; /* { kind, id } del vencimiento tocado */
+function openAlertSheet(kind, id) {
+  const r = findRecord(kind, id);
+  if (!r) { showScreen('historial'); return; }
+  alertCtx = { kind: kind, id: id };
+  const due = kind === 'vacuna' ? r.next : addMonths(r.date, r.repeat);
+  document.getElementById('al-title').textContent =
+    (kind === 'vacuna' ? 'Vacuna ' + r.name : 'Desparasitación ' + r.type.toLowerCase()) +
+    ' · vence el ' + fmtDate(due);
+  openModal('m-alerta');
+}
+function alertAction(action) {
+  const ctx = alertCtx;
+  closeOverlay('m-alerta');
+  if (!ctx) return;
+  const r = findRecord(ctx.kind, ctx.id);
+  if (!r) return;
+  if (action === 'redo') {
+    /* precarga el formulario con los datos del registro anterior, fecha hoy */
+    editing = null;
+    if (ctx.kind === 'vacuna') {
+      document.getElementById('v-name').value = r.name;
+      document.getElementById('v-date').value = today();
+      document.getElementById('v-next').value = '';
+      document.getElementById('v-vet').value = r.vet || '';
+      openModal('m-vacuna');
+    } else {
+      setChips('d-type', r.type);
+      document.getElementById('d-product').value = r.product || '';
+      document.getElementById('d-date').value = today();
+      document.getElementById('d-repeat').value = String(r.repeat || 3);
+      openModal('m-desp');
+    }
+  } else if (action === 'ics') {
+    const due = ctx.kind === 'vacuna' ? r.next : addMonths(r.date, r.repeat);
+    const title = (ctx.kind === 'vacuna' ? 'Vacuna ' + r.name : 'Desparasitación') + ' de ' + pet().name;
+    downloadICS(title, due);
+  } else if (action === 'hist') {
+    showScreen('historial');
+    const chip = document.querySelector('#hist-filters .chip[data-f="' + ctx.kind + '"]');
+    if (chip) setFilter(chip);
+  }
+}
+function downloadICS(title, dateIso) {
+  const d = dateIso.replace(/-/g, '');
+  const dEnd = isoLocal(new Date(new Date(dateIso + 'T00:00:00').getTime() + 86400000)).replace(/-/g, '');
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Soji//ES', 'BEGIN:VEVENT',
+    'UID:' + uid() + '@soji', 'DTSTAMP:' + stamp,
+    'DTSTART;VALUE=DATE:' + d, 'DTEND;VALUE=DATE:' + dEnd,
+    'SUMMARY:' + title, 'DESCRIPTION:Recordatorio creado con Soji',
+    'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', 'DESCRIPTION:' + title, 'END:VALARM',
+    'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const blob = new Blob([ics], { type: 'text/calendar' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'soji-recordatorio.ics';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  showToast('Listo: abrilo para sumarlo al calendario');
+}
+/* ───── CONFIRMACIÓN PROPIA ───── */
+function askConfirm(msg, okLabel, cb) {
+  document.getElementById('cf-msg').textContent = msg;
+  const ok = document.getElementById('cf-ok');
+  ok.textContent = okLabel;
+  ok.onclick = function () { closeOverlay('m-confirm'); cb(); };
+  openModal('m-confirm');
+}
+/* ───── SELECTOR REGISTRAR ───── */
+function openRegSelector(title) {
+  document.getElementById('reg-title').textContent = title || '¿Qué querés registrar?';
+  openModal('m-registrar');
 }
 /* ───── DONACIÓN ───── */
 function copyAlias() {
