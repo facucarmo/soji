@@ -16,7 +16,7 @@
 :root {
   --bg:#F2F8F6; --cream:#E2EEE8; --accent:#0E6B5C; --accent-soft:#D8EEE8;
   --green:#4E8C6A; --green-soft:#E4F0EA; --ink:#0D2017; --ink-mid:#3F5A50;
-  --ink-light:#8FACA1; --white:#FFF;
+  --ink-light:#547468; --white:#FFF;
   --shadow-soft:0 2px 20px rgba(13,32,23,.07); --shadow-lift:0 8px 32px rgba(13,32,23,.13);
   --r:18px; --r-sm:12px; --tab:72px;
 }
@@ -124,7 +124,7 @@ body.onboarding .tabbar{display:none}
 .calm-card svg{width:28px;height:28px;flex-shrink:0}
 /* SECTION LABEL + QUICK */
 .section-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-light);margin-bottom:14px;display:flex;align-items:center;gap:6px}
-.section-label::before{content:'';width:11px;height:11px;flex-shrink:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cellipse cx='10' cy='13.5' rx='4.6' ry='3.4' fill='%238FACA1'/%3E%3Cellipse cx='4.8' cy='8.4' rx='2' ry='2.6' fill='%238FACA1' transform='rotate(-25 4.8 8.4)'/%3E%3Cellipse cx='15.2' cy='8.4' rx='2' ry='2.6' fill='%238FACA1' transform='rotate(25 15.2 8.4)'/%3E%3Cellipse cx='7.4' cy='5.2' rx='1.6' ry='2.2' fill='%238FACA1' transform='rotate(-10 7.4 5.2)'/%3E%3Cellipse cx='12.6' cy='5.2' rx='1.6' ry='2.2' fill='%238FACA1' transform='rotate(10 12.6 5.2)'/%3E%3C/svg%3E") no-repeat center/contain;opacity:.8}
+.section-label::before{content:'';width:11px;height:11px;flex-shrink:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cellipse cx='10' cy='13.5' rx='4.6' ry='3.4' fill='%23547468'/%3E%3Cellipse cx='4.8' cy='8.4' rx='2' ry='2.6' fill='%23547468' transform='rotate(-25 4.8 8.4)'/%3E%3Cellipse cx='15.2' cy='8.4' rx='2' ry='2.6' fill='%23547468' transform='rotate(25 15.2 8.4)'/%3E%3Cellipse cx='7.4' cy='5.2' rx='1.6' ry='2.2' fill='%23547468' transform='rotate(-10 7.4 5.2)'/%3E%3Cellipse cx='12.6' cy='5.2' rx='1.6' ry='2.2' fill='%23547468' transform='rotate(10 12.6 5.2)'/%3E%3C/svg%3E") no-repeat center/contain;opacity:.8}
 .quick-wrap{padding:24px 24px 0}
 .quick-row{display:flex;gap:10px}
 .quick-card{flex:1;background:var(--white);border-radius:var(--r);padding:18px 14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-soft);cursor:pointer;border:none;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;text-align:left;font-family:'Inter',sans-serif}
@@ -758,7 +758,7 @@ function renderHistorial() {
     };
     const m = msgs[histFilter] || msgs.todo;
     list.innerHTML = '<div class="empty">' +
-      '<svg viewBox="0 0 80 80" fill="#8FACA1"><use href="#paw"/></svg>' +
+      '<svg viewBox="0 0 80 80" fill="#547468"><use href="#paw"/></svg>' +
       '<div class="empty-title">' + m[0] + '</div>' +
       '<div class="empty-sub">' + m[1] + '</div>' +
       '<button class="btn-p" onclick="openRegSelector()">Registrar algo</button></div>';
