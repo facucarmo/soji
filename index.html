@@ -21,6 +21,9 @@
   --r:18px; --r-sm:12px; --tab:72px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+/* foco visible solo al navegar con teclado */
+:focus{outline:none}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:6px}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;max-width:430px;margin:0 auto;overflow-x:hidden}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -47,7 +50,7 @@ img.pet-photo{width:100%;height:100%;object-fit:cover;border-radius:inherit;disp
 /* TABBAR */
 .tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--tab);background:rgba(242,248,246,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(13,32,23,.07);display:flex;align-items:center;justify-content:space-around;z-index:200;padding:0 8px 8px}
 body.onboarding .tabbar{display:none}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1);background:none;border:none;font-family:'Inter',sans-serif}
 .tab:active{transform:scale(.85)}
 .tab-icon-wrap{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s cubic-bezier(.34,1.56,.64,1)}
 .tab.active .tab-icon-wrap{background:var(--accent-soft);transform:translateY(-2px);animation:tabPop .35s cubic-bezier(.34,1.56,.64,1)}
@@ -287,7 +290,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
       <div class="inicio-sup"><span class="mini-brand"><svg viewBox="0 0 80 80" style="color:#0E6B5C"><use href="#soji"/></svg>soji</span>· Bienvenido de nuevo</div>
       <div class="inicio-name">Hola,<br><span id="greet-name"></span></div>
     </div>
-    <button class="avatar-btn" id="inicio-avatar" onclick="showScreen('perfil')"></button>
+    <button class="avatar-btn" id="inicio-avatar" onclick="showScreen('perfil')" aria-label="Ver perfil de tu mascota"></button>
   </div>
   <div class="pet-switch" id="pet-switch"></div>
   <div class="hero-wrap" id="hero-box"></div>
@@ -330,14 +333,14 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
     <div class="screen-sub" id="hist-sub"></div>
   </div>
   <div class="filter-row" id="hist-filters">
-    <div class="chip on" data-f="todo" onclick="setFilter(this)">Todo</div>
-    <div class="chip" data-f="vacuna" onclick="setFilter(this)">Vacunas</div>
-    <div class="chip" data-f="desp" onclick="setFilter(this)">Desparasitación</div>
-    <div class="chip" data-f="visita" onclick="setFilter(this)">Visitas</div>
-    <div class="chip" data-f="peso" onclick="setFilter(this)">Peso</div>
+    <div class="chip on" data-f="todo" onclick="setFilter(this)" role="button" tabindex="0">Todo</div>
+    <div class="chip" data-f="vacuna" onclick="setFilter(this)" role="button" tabindex="0">Vacunas</div>
+    <div class="chip" data-f="desp" onclick="setFilter(this)" role="button" tabindex="0">Desparasitación</div>
+    <div class="chip" data-f="visita" onclick="setFilter(this)" role="button" tabindex="0">Visitas</div>
+    <div class="chip" data-f="peso" onclick="setFilter(this)" role="button" tabindex="0">Peso</div>
   </div>
   <div class="section-block" id="hist-list"></div>
-  <button class="fab" onclick="openRegSelector()">+</button>
+  <button class="fab" onclick="openRegSelector()" aria-label="Registrar algo nuevo">+</button>
 </div>
 <!-- ════ DONACIONES ════ -->
 <div class="screen" id="screen-donaciones">
@@ -358,7 +361,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   </div>
 </div>
 <!-- DONAR: DATOS DE TRANSFERENCIA -->
-<div class="overlay" id="m-donar" onclick="closeOverlay('m-donar',event)">
+<div class="overlay" id="m-donar" role="dialog" aria-modal="true" onclick="closeOverlay('m-donar',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title"><span class="quick-icon green"><svg class="ico green" viewBox="0 0 20 20"><path d="M10 16s-7-4.5-7-9a4 4 0 018 0 4 4 0 018 0c0 4.5-7 9-7 9z"/></svg></span>¡Gracias por apoyar!</div>
@@ -372,7 +375,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   </div>
 </div>
 <!-- ACCIONES DE ALERTA -->
-<div class="overlay" id="m-alerta" onclick="closeOverlay('m-alerta',event)">
+<div class="overlay" id="m-alerta" role="dialog" aria-modal="true" onclick="closeOverlay('m-alerta',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="al-title">Vencimiento</div>
@@ -391,7 +394,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   </div>
 </div>
 <!-- CONFIRMACIÓN -->
-<div class="overlay" id="m-confirm" onclick="closeOverlay('m-confirm',event)">
+<div class="overlay" id="m-confirm" role="dialog" aria-modal="true" onclick="closeOverlay('m-confirm',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">¿Estás seguro?</div>
@@ -405,23 +408,23 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   <div id="perfil-box"></div>
 </div>
 <!-- ════ TABBAR ════ -->
-<nav class="tabbar">
-  <div class="tab active" id="tab-inicio" onclick="showScreen('inicio')">
-    <div class="tab-icon-wrap"><svg class="ico light" viewBox="0 0 20 20"><path d="M3 9.5L10 3l7 6.5V17a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg></div>
+<nav class="tabbar" aria-label="Navegación principal">
+  <button class="tab active" id="tab-inicio" onclick="showScreen('inicio')" aria-current="page">
+    <div class="tab-icon-wrap"><svg class="ico light" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 9.5L10 3l7 6.5V17a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/></svg></div>
     <span class="tab-label">Inicio</span>
-  </div>
-  <div class="tab" id="tab-historial" onclick="showScreen('historial')">
-    <div class="tab-icon-wrap"><svg class="ico light" viewBox="0 0 20 20"><path d="M4 6h12M4 10h8M4 14h6"/></svg></div>
+  </button>
+  <button class="tab" id="tab-historial" onclick="showScreen('historial')">
+    <div class="tab-icon-wrap"><svg class="ico light" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12M4 10h8M4 14h6"/></svg></div>
     <span class="tab-label">Historial</span>
-  </div>
-  <div class="tab" id="tab-perfil" onclick="showScreen('perfil')">
-    <div class="tab-icon-wrap"><svg class="ico light" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div>
+  </button>
+  <button class="tab" id="tab-perfil" onclick="showScreen('perfil')">
+    <div class="tab-icon-wrap"><svg class="ico light" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div>
     <span class="tab-label">Perfil</span>
-  </div>
+  </button>
 </nav>
 <!-- ════ MODALS ════ -->
 <!-- SELECTOR REGISTRAR -->
-<div class="overlay" id="m-registrar" onclick="closeOverlay('m-registrar',event)">
+<div class="overlay" id="m-registrar" role="dialog" aria-modal="true" onclick="closeOverlay('m-registrar',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="reg-title">¿Qué querés registrar?</div>
@@ -444,36 +447,36 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   </div>
 </div>
 <!-- VACUNA -->
-<div class="overlay" id="m-vacuna" onclick="closeOverlay('m-vacuna',event)">
+<div class="overlay" id="m-vacuna" role="dialog" aria-modal="true" onclick="closeOverlay('m-vacuna',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title"><span class="quick-icon orange"><svg class="ico accent" viewBox="0 0 20 20"><path d="M9 5l6 6-2 2-6-6 2-2z"/><path d="M5 15l1-1M14 6l1-1"/></svg></span>Nueva vacuna</div>
-    <div class="fg"><label class="flabel">¿Qué vacuna fue?</label><input class="finput" id="v-name" type="text" placeholder="Ej: Antirrábica, Parvovirus…"></div>
+    <div class="fg"><label class="flabel" for="v-name">¿Qué vacuna fue?</label><input class="finput" id="v-name" type="text" placeholder="Ej: Antirrábica, Parvovirus…"></div>
     <div class="frow">
-      <div class="fg"><label class="flabel">Cuándo la aplicaron</label><input class="finput" id="v-date" type="date"></div>
-      <div class="fg"><label class="flabel">Próximo refuerzo</label><input class="finput" id="v-next" type="date"></div>
+      <div class="fg"><label class="flabel" for="v-date">Cuándo la aplicaron</label><input class="finput" id="v-date" type="date"></div>
+      <div class="fg"><label class="flabel" for="v-next">Próximo refuerzo</label><input class="finput" id="v-next" type="date"></div>
     </div>
-    <div class="fg"><label class="flabel">Veterinario o clínica</label><input class="finput" id="v-vet" type="text" placeholder="Opcional, pero útil"></div>
+    <div class="fg"><label class="flabel" for="v-vet">Veterinario o clínica</label><input class="finput" id="v-vet" type="text" placeholder="Opcional, pero útil"></div>
     <button class="btn-p" onclick="saveVacuna()">Listo, guardar</button>
     <button class="btn-g" onclick="closeOverlay('m-vacuna')">Mejor no por ahora</button>
   </div>
 </div>
 <!-- DESPARASITACIÓN -->
-<div class="overlay" id="m-desp" onclick="closeOverlay('m-desp',event)">
+<div class="overlay" id="m-desp" role="dialog" aria-modal="true" onclick="closeOverlay('m-desp',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title"><span class="quick-icon green"><svg class="ico green" viewBox="0 0 20 20"><path d="M10 4c-3 0-5 2-5 5s2 5 5 5"/><path d="M10 14c3 0 5-2 5-5s-2-5-5-5"/></svg></span>Desparasitación</div>
     <div class="fg"><label class="flabel">¿Qué tipo?</label>
       <div class="chips" id="d-type">
-        <div class="chip on" onclick="pickChip(this)">Interna</div>
-        <div class="chip" onclick="pickChip(this)">Externa</div>
-        <div class="chip" onclick="pickChip(this)">Las dos</div>
+        <div class="chip on" onclick="pickChip(this)" role="button" tabindex="0">Interna</div>
+        <div class="chip" onclick="pickChip(this)" role="button" tabindex="0">Externa</div>
+        <div class="chip" onclick="pickChip(this)" role="button" tabindex="0">Las dos</div>
       </div>
     </div>
-    <div class="fg" style="margin-top:14px;"><label class="flabel">Producto usado</label><input class="finput" id="d-product" type="text" placeholder="Ej: Milbemax, Frontline…"></div>
+    <div class="fg" style="margin-top:14px;"><label class="flabel" for="d-product">Producto usado</label><input class="finput" id="d-product" type="text" placeholder="Ej: Milbemax, Frontline…"></div>
     <div class="frow">
-      <div class="fg"><label class="flabel">Fecha</label><input class="finput" id="d-date" type="date"></div>
-      <div class="fg"><label class="flabel">Repetir en</label>
+      <div class="fg"><label class="flabel" for="d-date">Fecha</label><input class="finput" id="d-date" type="date"></div>
+      <div class="fg"><label class="flabel" for="d-repeat">Repetir en</label>
         <select class="finput" id="d-repeat" style="appearance:none;">
           <option value="1">1 mes</option><option value="3" selected>3 meses</option>
           <option value="6">6 meses</option><option value="12">1 año</option>
@@ -485,59 +488,59 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   </div>
 </div>
 <!-- VISITA -->
-<div class="overlay" id="m-visita" onclick="closeOverlay('m-visita',event)">
+<div class="overlay" id="m-visita" role="dialog" aria-modal="true" onclick="closeOverlay('m-visita',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title"><span class="quick-icon dark"><svg class="ico ink" viewBox="0 0 20 20"><path d="M4 17V7a2 2 0 012-2h8a2 2 0 012 2v10"/><path d="M8 17v-4h4v4"/></svg></span>Visita al veterinario</div>
-    <div class="fg"><label class="flabel">¿Por qué fueron?</label><input class="finput" id="vi-reason" type="text" placeholder="Control, consulta, urgencia…"></div>
+    <div class="fg"><label class="flabel" for="vi-reason">¿Por qué fueron?</label><input class="finput" id="vi-reason" type="text" placeholder="Control, consulta, urgencia…"></div>
     <div class="frow">
-      <div class="fg"><label class="flabel">Fecha</label><input class="finput" id="vi-date" type="date"></div>
-      <div class="fg"><label class="flabel">Veterinario</label><input class="finput" id="vi-vet" type="text" placeholder="Nombre"></div>
+      <div class="fg"><label class="flabel" for="vi-date">Fecha</label><input class="finput" id="vi-date" type="date"></div>
+      <div class="fg"><label class="flabel" for="vi-vet">Veterinario</label><input class="finput" id="vi-vet" type="text" placeholder="Nombre"></div>
     </div>
-    <div class="fg"><label class="flabel">¿Qué pasó? (opcional)</label><textarea class="finput" id="vi-notes" rows="3" placeholder="Diagnóstico, medicación, lo que sea relevante…"></textarea></div>
+    <div class="fg"><label class="flabel" for="vi-notes">¿Qué pasó? (opcional)</label><textarea class="finput" id="vi-notes" rows="3" placeholder="Diagnóstico, medicación, lo que sea relevante…"></textarea></div>
     <button class="btn-p" onclick="saveVisita()">Listo, guardar</button>
     <button class="btn-g" onclick="closeOverlay('m-visita')">Mejor no por ahora</button>
   </div>
 </div>
 <!-- PESO -->
-<div class="overlay" id="m-peso" onclick="closeOverlay('m-peso',event)">
+<div class="overlay" id="m-peso" role="dialog" aria-modal="true" onclick="closeOverlay('m-peso',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title"><span class="quick-icon dark"><svg class="ico mid" viewBox="0 0 20 20"><path d="M3 7h14l-2 10H5L3 7z"/><path d="M7 7a3 3 0 016 0"/></svg></span>Registrar peso</div>
     <div class="frow">
-      <div class="fg"><label class="flabel">Peso (kg)</label><input class="finput" id="w-kg" type="text" inputmode="decimal" placeholder="Ej: 4,5"></div>
-      <div class="fg"><label class="flabel">Fecha</label><input class="finput" id="w-date" type="date"></div>
+      <div class="fg"><label class="flabel" for="w-kg">Peso (kg)</label><input class="finput" id="w-kg" type="text" inputmode="decimal" placeholder="Ej: 4,5"></div>
+      <div class="fg"><label class="flabel" for="w-date">Fecha</label><input class="finput" id="w-date" type="date"></div>
     </div>
     <button class="btn-p" onclick="savePeso()">Listo, guardar</button>
     <button class="btn-g" onclick="closeOverlay('m-peso')">Mejor no por ahora</button>
   </div>
 </div>
 <!-- MASCOTA (crear / editar) -->
-<div class="overlay" id="m-mascota" onclick="closeOverlay('m-mascota',event)">
+<div class="overlay" id="m-mascota" role="dialog" aria-modal="true" onclick="closeOverlay('m-mascota',event)">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="pm-title">Tu mascota</div>
-    <div class="photo-pick" id="pm-photo" onclick="pickPhoto()">
+    <div class="photo-pick" id="pm-photo" onclick="pickPhoto()" role="button" tabindex="0" aria-label="Agregar o cambiar la foto">
       <svg class="ico light" viewBox="0 0 20 20"><path d="M3 7h3l1.5-2h5L14 7h3v9H3V7z"/><circle cx="10" cy="11" r="2.5"/></svg>
       <span class="photo-pick-label">Agregar foto</span>
     </div>
-    <div class="fg"><label class="flabel">Nombre</label><input class="finput" id="pm-name" type="text" placeholder="¿Cómo se llama?"></div>
+    <div class="fg"><label class="flabel" for="pm-name">Nombre</label><input class="finput" id="pm-name" type="text" placeholder="¿Cómo se llama?"></div>
     <div class="fg"><label class="flabel">¿Qué es?</label>
       <div class="chips" id="pm-species">
-        <div class="chip on" onclick="pickChip(this)">Perro</div>
-        <div class="chip" onclick="pickChip(this)">Gato</div>
-        <div class="chip" onclick="pickChip(this)">Otro</div>
+        <div class="chip on" onclick="pickChip(this)" role="button" tabindex="0">Perro</div>
+        <div class="chip" onclick="pickChip(this)" role="button" tabindex="0">Gato</div>
+        <div class="chip" onclick="pickChip(this)" role="button" tabindex="0">Otro</div>
       </div>
     </div>
-    <div class="fg" style="margin-top:14px;"><label class="flabel">Raza</label><input class="finput" id="pm-breed" type="text" placeholder="Ej: Golden Retriever, mestizo…"></div>
+    <div class="fg" style="margin-top:14px;"><label class="flabel" for="pm-breed">Raza</label><input class="finput" id="pm-breed" type="text" placeholder="Ej: Golden Retriever, mestizo…"></div>
     <div class="frow">
-      <div class="fg"><label class="flabel">Nacimiento</label><input class="finput" id="pm-birth" type="date"></div>
-      <div class="fg" id="pm-weight-wrap"><label class="flabel">Peso (kg)</label><input class="finput" id="pm-weight" type="text" inputmode="decimal" placeholder="Aprox."></div>
+      <div class="fg"><label class="flabel" for="pm-birth">Nacimiento</label><input class="finput" id="pm-birth" type="date"></div>
+      <div class="fg" id="pm-weight-wrap"><label class="flabel" for="pm-weight">Peso (kg)</label><input class="finput" id="pm-weight" type="text" inputmode="decimal" placeholder="Aprox."></div>
     </div>
     <div class="fg"><label class="flabel">Sexo</label>
       <div class="chips" id="pm-sex">
-        <div class="chip on" onclick="pickChip(this)">Macho</div>
-        <div class="chip" onclick="pickChip(this)">Hembra</div>
+        <div class="chip on" onclick="pickChip(this)" role="button" tabindex="0">Macho</div>
+        <div class="chip" onclick="pickChip(this)" role="button" tabindex="0">Hembra</div>
       </div>
     </div>
     <button class="btn-p" id="pm-save" onclick="savePetForm()">Crear su perfil</button>
@@ -1232,12 +1235,12 @@ function showScreen(name) {
   if (name === 'historial') renderHistorial();
   if (name === 'perfil') renderPerfil();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.removeAttribute('aria-current'); });
   const sc = document.getElementById('screen-' + name);
   void sc.offsetWidth;
   sc.classList.add('active');
   const t = document.getElementById('tab-' + name);
-  if (t) t.classList.add('active');
+  if (t) { t.classList.add('active'); t.setAttribute('aria-current', 'page'); }
   window.scrollTo({ top: 0 });
 }
 function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -1257,6 +1260,13 @@ function pickChip(el) {
   el.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
   el.classList.add('on');
 }
+/* teclado: Enter/Espacio activan los chips y otros role=button */
+document.addEventListener('keydown', function (e) {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.getAttribute && e.target.getAttribute('role') === 'button') {
+    e.preventDefault();
+    e.target.click();
+  }
+});
 /* ───── BOOT ───── */
 (function () {
   const splash = document.getElementById('splash');
