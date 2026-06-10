@@ -230,7 +230,7 @@ textarea.finput{resize:none;line-height:1.5}
 .hist-act.del{color:#B33A2B}
 .hist-act svg{width:12px;height:12px}
 /* TOAST */
-.toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%) translateY(-70px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(13,32,23,.25)}
+.toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%) translateY(-70px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;max-width:calc(100vw - 32px);white-space:normal;text-align:center;transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(13,32,23,.25)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 svg.ico{width:20px;height:20px;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.ink{stroke:var(--ink)}svg.ico.light{stroke:var(--ink-light)}svg.ico.mid{stroke:var(--ink-mid)}
@@ -566,17 +566,35 @@ function load() {
     migrate(db);
     return db;
   }
-  catch (e) { return { pets: [], active: null }; }
+  catch (e) {
+    /* dato corrupto: preservarlo para un eventual rescate manual antes de pisar */
+    try {
+      const raw = localStorage.getItem('soji');
+      if (raw) localStorage.setItem('soji-corrupt', raw);
+    } catch (e2) {}
+    return { pets: [], active: null };
+  }
 }
 function migrate(db) {
-  /* registros viejos sin id (p. ej. pesos) */
-  (db.pets || []).forEach(p =>
-    ['vaccines', 'dewormings', 'visits', 'weights'].forEach(k =>
-      (p[k] || []).forEach(r => { if (!r.id) r.id = uid(); })));
+  (db.pets || []).forEach(p => {
+    /* los saves asumen que los 4 arrays existen (respaldos viejos o editados pueden no traerlos) */
+    ['vaccines', 'dewormings', 'visits', 'weights'].forEach(k => {
+      if (!Array.isArray(p[k])) p[k] = [];
+      p[k].forEach(r => { if (!r.id) r.id = uid(); });
+    });
+    p.dewormings.forEach(d => { if (!d.type) d.type = 'Interna'; });
+    /* la foto se inyecta en un atributo src: solo data-URLs de imagen */
+    if (p.photo && !/^data:image\//.test(p.photo)) p.photo = null;
+  });
 }
 function save() {
   try { localStorage.setItem('soji', JSON.stringify(DB)); }
-  catch (e) { showToast('No pude guardar: espacio lleno'); }
+  catch (e) {
+    /* sin revertir, la UI mostraría como guardado algo que se pierde al recargar */
+    DB = load();
+    renderAll();
+    showToast('Sin espacio: el último cambio no se guardó');
+  }
 }
 function pet() { return DB.pets.find(p => p.id === DB.active) || DB.pets[0]; }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -624,8 +642,27 @@ function esc(s) {
 /* ───── EVENTOS PRÓXIMOS ───── */
 function upcoming(p) {
   const ev = [];
-  (p.vaccines || []).forEach(v => { if (v.next) ev.push({ kind: 'vacuna', id: v.id, title: 'Vacuna ' + v.name, due: v.next }); });
-  (p.dewormings || []).forEach(d => { if (d.date && d.repeat) ev.push({ kind: 'desp', id: d.id, title: 'Desparasitación ' + d.type.toLowerCase(), due: addMonths(d.date, d.repeat) }); });
+  /* vacunas: una alerta por nombre; solo el registro más reciente está "pendiente",
+     los anteriores son historia (viven en el historial, no acá) */
+  const vacGroups = {};
+  (p.vaccines || []).forEach(v => {
+    const key = (v.name || '').trim().toLowerCase();
+    if (!vacGroups[key] || (v.date || '') > (vacGroups[key].date || '')) vacGroups[key] = v;
+  });
+  Object.keys(vacGroups).forEach(k => {
+    const v = vacGroups[k];
+    if (v.next) ev.push({ kind: 'vacuna', id: v.id, title: 'Vacuna ' + v.name, due: v.next });
+  });
+  /* desparasitaciones: una por cobertura; "Las dos" cubre interna y externa */
+  const dews = (p.dewormings || []).filter(d => d.date && d.repeat);
+  const latestOf = t => dews.filter(d => d.type === t).sort((a, b) => b.date.localeCompare(a.date))[0];
+  const newer = (a, b) => !a ? b : !b ? a : (a.date >= b.date ? a : b);
+  const both = latestOf('Las dos');
+  const effInt = newer(latestOf('Interna'), both);
+  const effExt = newer(latestOf('Externa'), both);
+  const picked = [];
+  [effInt, effExt].forEach(d => { if (d && picked.indexOf(d) === -1) picked.push(d); });
+  picked.forEach(d => ev.push({ kind: 'desp', id: d.id, title: 'Desparasitación ' + (d.type || 'interna').toLowerCase(), due: addMonths(d.date, d.repeat) }));
   ev.forEach(e => e.days = daysUntil(e.due));
   return ev.filter(e => e.days <= 90).sort((a, b) => a.days - b.days);
 }
@@ -1190,6 +1227,10 @@ function alertAction(action) {
     if (chip) setFilter(chip);
   }
 }
+function icsEsc(s) {
+  /* RFC 5545: comas, punto y coma, barras y saltos de línea van escapados */
+  return String(s).replace(/\\/g, '\\\\').replace(/[,;]/g, m => '\\' + m).replace(/\r?\n/g, '\\n');
+}
 function downloadICS(title, dateIso) {
   const d = dateIso.replace(/-/g, '');
   const dEnd = isoLocal(new Date(new Date(dateIso + 'T00:00:00').getTime() + 86400000)).replace(/-/g, '');
@@ -1197,8 +1238,8 @@ function downloadICS(title, dateIso) {
   const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Soji//ES', 'BEGIN:VEVENT',
     'UID:' + uid() + '@soji', 'DTSTAMP:' + stamp,
     'DTSTART;VALUE=DATE:' + d, 'DTEND;VALUE=DATE:' + dEnd,
-    'SUMMARY:' + title, 'DESCRIPTION:Recordatorio creado con Soji',
-    'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', 'DESCRIPTION:' + title, 'END:VALARM',
+    'SUMMARY:' + icsEsc(title), 'DESCRIPTION:Recordatorio creado con Soji',
+    'BEGIN:VALARM', 'TRIGGER:-P1D', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc(title), 'END:VALARM',
     'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   const blob = new Blob([ics], { type: 'text/calendar' });
   const a = document.createElement('a');

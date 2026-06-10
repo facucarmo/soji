@@ -1,5 +1,5 @@
 /* Soji service worker — app shell cache-first, fuentes runtime */
-const VERSION = 'soji-v2';
+const VERSION = 'soji-v3';
 const SHELL = [
   './',
   './index.html',
@@ -33,7 +33,8 @@ self.addEventListener('fetch', e => {
   /* resto (íconos, fuentes de Google): cache primero, llena en runtime */
   e.respondWith(
     caches.match(e.request).then(hit => hit || fetch(e.request).then(r => {
-      if (r.ok && (url.origin === location.origin || url.hostname.endsWith('gstatic.com') || url.hostname.endsWith('googleapis.com'))) {
+      /* las fuentes de Google llegan como respuestas opacas (ok=false): cachearlas igual o no hay tipografía offline */
+      if ((r.ok || r.type === 'opaque') && (url.origin === location.origin || url.hostname.endsWith('gstatic.com') || url.hostname.endsWith('googleapis.com'))) {
         const copy = r.clone();
         caches.open(VERSION).then(c => c.put(e.request, copy));
       }
