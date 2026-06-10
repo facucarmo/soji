@@ -1,0 +1,17 @@
+{
+  "name": "Soji — el cuidado de tu mascota, simple",
+  "short_name": "Soji",
+  "description": "Registro de vacunas, desparasitaciones, visitas al veterinario y peso de tus mascotas. Gratis, sin cuentas, sin publicidad.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF7F2",
+  "theme_color": "#FBF7F2",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
