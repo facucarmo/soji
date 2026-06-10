@@ -157,7 +157,7 @@ body.onboarding .tabbar{display:none}
 .empty-sub{font-size:13px;color:var(--ink-light);margin-top:6px;line-height:1.5;max-width:240px}
 .empty .btn-p{margin-top:20px;width:auto;padding:13px 26px;font-size:15px}
 /* DONACIONES */
-.don-hero{margin:60px 24px 24px;background:radial-gradient(circle at 12% 88%,rgba(255,255,255,.12),transparent 50%),linear-gradient(150deg,#5C9C78,#3F7A59 70%);border-radius:28px;padding:32px 28px;position:relative;overflow:hidden}
+.don-hero{margin:16px 24px 24px;background:radial-gradient(circle at 12% 88%,rgba(255,255,255,.12),transparent 50%),linear-gradient(150deg,#5C9C78,#3F7A59 70%);border-radius:28px;padding:32px 28px;position:relative;overflow:hidden}
 .don-hero-bg{position:absolute;right:-24px;bottom:-24px;opacity:.12;width:140px}
 .don-hero-bg-2{position:absolute;right:100px;top:16px;opacity:.07;width:64px;transform:rotate(-20deg)}
 .don-hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px}
@@ -328,6 +328,9 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
 </div>
 <!-- ════ DONACIONES ════ -->
 <div class="screen" id="screen-donaciones">
+  <div style="padding:56px 24px 0">
+    <button class="hist-act" style="background:var(--cream)" onclick="showScreen('perfil')">← Volver al perfil</button>
+  </div>
   <div class="don-hero">
     <svg class="don-hero-bg" viewBox="0 0 80 80" fill="white"><use href="#paw"/></svg>
     <svg class="don-hero-bg-2" viewBox="0 0 80 80" fill="white"><use href="#paw"/></svg>
@@ -338,7 +341,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   <div class="don-note">Elegís el monto al donar, según tu moneda. Cada peso va al servidor, el dominio y el tiempo que le dedicamos.</div>
   <div style="padding:0 24px;">
     <button class="btn-p" onclick="showToast('¡Gracias por querer a Soji!')">Apoyar ahora</button>
-    <button class="btn-g" onclick="showToast('¡Está bien! Soji sigue siendo gratis')">Quizás en otro momento</button>
+    <button class="btn-g" onclick="showScreen('perfil');showToast('¡Está bien! Soji sigue siendo gratis')">Quizás en otro momento</button>
   </div>
 </div>
 <!-- ════ PERFIL ════ -->
@@ -354,10 +357,6 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   <div class="tab" id="tab-historial" onclick="showScreen('historial')">
     <div class="tab-icon-wrap"><svg class="ico light" viewBox="0 0 20 20"><path d="M4 6h12M4 10h8M4 14h6"/></svg></div>
     <span class="tab-label">Historial</span>
-  </div>
-  <div class="tab" id="tab-donaciones" onclick="showScreen('donaciones')">
-    <div class="tab-icon-wrap"><svg class="ico light" viewBox="0 0 20 20"><path d="M10 16s-7-4.5-7-9a4 4 0 018 0 4 4 0 018 0c0 4.5-7 9-7 9z"/></svg></div>
-    <span class="tab-label">Apoyar</span>
   </div>
   <div class="tab" id="tab-perfil" onclick="showScreen('perfil')">
     <div class="tab-icon-wrap"><svg class="ico light" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg></div>
@@ -766,6 +765,11 @@ function renderPerfil() {
     '<div class="info-row"><span class="info-key">Restaurar respaldo</span>' +
     '<button class="hist-act" style="background:var(--cream)" onclick="importData()">Elegir archivo</button></div>' +
     '<div class="info-row" style="border:none;padding-top:0"><span style="font-size:12px;color:var(--ink-light);line-height:1.5">Todo vive en este dispositivo. Guardá un respaldo de vez en cuando, o para pasar a otro teléfono.</span></div>' +
+    '</div>' +
+    '<div class="info-card" onclick="showScreen(\'donaciones\')" style="cursor:pointer">' +
+    '<div class="info-row"><span class="info-key" style="display:flex;align-items:center;gap:10px">' +
+    '<svg class="ico green" style="width:18px;height:18px" viewBox="0 0 20 20"><path d="M10 16s-7-4.5-7-9a4 4 0 018 0 4 4 0 018 0c0 4.5-7 9-7 9z"/></svg>' +
+    'Apoyar a Soji</span><span class="info-val" style="color:var(--ink-light)">›</span></div>' +
     '</div>' +
     '<div style="padding:0 24px;">' +
     '<button class="btn-p" onclick="openPetModal(\'edit\')" style="background:var(--ink);box-shadow:none;">Editar perfil de ' + esc(p.name) + '</button>' +
