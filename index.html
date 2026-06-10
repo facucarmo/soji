@@ -743,10 +743,18 @@ function setFilter(el) {
 }
 function buildEvents(p) {
   const ev = [];
+  /* solo la aplicación más reciente de cada vacuna lleva badge de estado:
+     las anteriores ya fueron reemplazadas, son historia */
+  const latest = {};
+  (p.vaccines || []).forEach(v => {
+    const key = (v.name || '').trim().toLowerCase();
+    if (!latest[key] || (v.date || '') > (latest[key].date || '')) latest[key] = v;
+  });
   (p.vaccines || []).forEach(v => ev.push({
     id: v.id, type: 'vacuna', date: v.date, title: v.name,
     meta: 'Vacuna · ' + fmtDate(v.date) + (v.vet ? ' · ' + v.vet : ''),
-    note: v.next ? 'Refuerzo: ' + fmtDate(v.next) : '', next: v.next
+    note: v.next ? 'Refuerzo: ' + fmtDate(v.next) : '', next: v.next,
+    isLatest: latest[(v.name || '').trim().toLowerCase()] === v
   }));
   (p.dewormings || []).forEach(d => ev.push({
     id: d.id, type: 'desp', date: d.date, title: d.product || 'Desparasitación',
@@ -813,7 +821,7 @@ function renderHistorial() {
     }
     return header + '<div class="hist-entry">' + HIST_ICONS[e.type] +
     '<div class="hist-body"><div class="hist-title"><span>' + esc(e.title) + '</span>' +
-    (e.type === 'vacuna' ? vacBadge(e.next) : '') + '</div>' +
+    (e.type === 'vacuna' && e.isLatest ? vacBadge(e.next) : '') + '</div>' +
     '<div class="hist-meta">' + esc(e.meta) + '</div>' +
     (e.note ? '<div class="hist-note">' + esc(e.note) + '</div>' : '') +
     '<div class="hist-actions">' +
