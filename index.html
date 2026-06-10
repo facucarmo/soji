@@ -750,16 +750,26 @@ function buildEvents(p) {
     const key = (v.name || '').trim().toLowerCase();
     if (!latest[key] || (v.date || '') > (latest[key].date || '')) latest[key] = v;
   });
-  (p.vaccines || []).forEach(v => ev.push({
-    id: v.id, type: 'vacuna', date: v.date, title: v.name,
-    meta: 'Vacuna · ' + fmtDate(v.date) + (v.vet ? ' · ' + v.vet : ''),
-    note: v.next ? 'Refuerzo: ' + fmtDate(v.next) : '', next: v.next,
-    isLatest: latest[(v.name || '').trim().toLowerCase()] === v
-  }));
+  (p.vaccines || []).forEach(v => {
+    const isLatest = latest[(v.name || '').trim().toLowerCase()] === v;
+    ev.push({
+      id: v.id, type: 'vacuna', date: v.date, title: v.name,
+      meta: 'Vacuna · ' + fmtDate(v.date) + (v.vet ? ' · ' + v.vet : ''),
+      /* el refuerzo solo es "pendiente" en la aplicación vigente; en las viejas confunde */
+      note: isLatest && v.next ? 'Refuerzo: ' + fmtDate(v.next) : '', next: v.next,
+      isLatest: isLatest
+    });
+  });
+  /* desparasitaciones vigentes por cobertura (mismo criterio que las alertas) */
+  const dews = (p.dewormings || []).filter(d => d.date && d.repeat);
+  const latestOf = t => dews.filter(d => d.type === t).sort((a, b) => b.date.localeCompare(a.date))[0];
+  const newer = (a, b) => !a ? b : !b ? a : (a.date >= b.date ? a : b);
+  const both = latestOf('Las dos');
+  const vigentes = [newer(latestOf('Interna'), both), newer(latestOf('Externa'), both)];
   (p.dewormings || []).forEach(d => ev.push({
     id: d.id, type: 'desp', date: d.date, title: d.product || 'Desparasitación',
     meta: d.type + ' · ' + fmtDate(d.date),
-    note: d.repeat ? 'Repetir: ' + fmtDate(addMonths(d.date, d.repeat)) : ''
+    note: d.repeat && vigentes.indexOf(d) !== -1 ? 'Repetir: ' + fmtDate(addMonths(d.date, d.repeat)) : ''
   }));
   (p.visits || []).forEach(v => ev.push({
     id: v.id, type: 'visita', date: v.date, title: v.reason || 'Visita',
