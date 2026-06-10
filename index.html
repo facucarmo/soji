@@ -163,14 +163,6 @@ body.onboarding .tabbar{display:none}
 .don-hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px}
 .don-hero-title{font-family:'Fraunces',serif;font-size:30px;font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.5px}
 .don-hero-body{font-size:14px;color:rgba(255,255,255,.75);margin-top:10px;line-height:1.6}
-.amounts-wrap{padding:0 24px;margin-bottom:20px}
-.amounts-row{display:flex;gap:10px}
-.amt{flex:1;background:var(--white);border:2px solid transparent;border-radius:var(--r-sm);padding:16px 10px;text-align:center;cursor:pointer;box-shadow:var(--shadow-soft);transition:all .2s cubic-bezier(.34,1.56,.64,1)}
-.amt:active{transform:scale(.93)}
-.amt.on{border-color:var(--accent);background:var(--accent-soft);transform:translateY(-3px);box-shadow:var(--shadow-lift)}
-.amt-val{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--ink)}
-.amt.on .amt-val{color:var(--accent)}
-.amt-label{font-size:10px;color:var(--ink-light);margin-top:3px}
 .don-note{margin:0 24px 20px;background:var(--green-soft);border-radius:var(--r-sm);padding:14px 16px;font-size:13px;color:var(--green);line-height:1.5;font-weight:500}
 /* PERFIL */
 .perfil-hero{padding:60px 24px 28px;display:flex;align-items:flex-end;justify-content:space-between}
@@ -343,15 +335,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
     <div class="don-hero-title">Si te ayuda,<br>devolvé el amor.</div>
     <div class="don-hero-body">No hay publicidad, no vendemos tus datos. Solo personas que cuidan a sus mascotas, ayudando a mantener esto vivo.</div>
   </div>
-  <div class="amounts-wrap">
-    <div class="section-label" style="margin-bottom:12px;">¿Con qué lo comparás?</div>
-    <div class="amounts-row">
-      <div class="amt" onclick="selectAmt(this)"><div class="amt-val">Un café</div><div class="amt-label">aporte chico</div></div>
-      <div class="amt on" onclick="selectAmt(this)"><div class="amt-val">Un almuerzo</div><div class="amt-label">aporte medio</div></div>
-      <div class="amt" onclick="selectAmt(this)"><div class="amt-val">Dos birras</div><div class="amt-label">aporte grande</div></div>
-    </div>
-  </div>
-  <div class="don-note">Elegís el monto exacto al donar, según tu moneda. Cada peso va al servidor, el dominio y el tiempo que le dedicamos.</div>
+  <div class="don-note">Elegís el monto al donar, según tu moneda. Cada peso va al servidor, el dominio y el tiempo que le dedicamos.</div>
   <div style="padding:0 24px;">
     <button class="btn-p" onclick="showToast('¡Gracias por querer a Soji!')">Apoyar ahora</button>
     <button class="btn-g" onclick="showToast('¡Está bien! Soji sigue siendo gratis')">Quizás en otro momento</button>
@@ -1107,10 +1091,6 @@ function showToast(msg) {
 }
 function pickChip(el) {
   el.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on');
-}
-function selectAmt(el) {
-  el.closest('.amounts-row').querySelectorAll('.amt').forEach(a => a.classList.remove('on'));
   el.classList.add('on');
 }
 /* ───── BOOT ───── */
