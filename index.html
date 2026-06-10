@@ -189,6 +189,8 @@ body.onboarding .tabbar{display:none}
 .fab:active{transform:scale(.88) rotate(45deg);box-shadow:none}
 /* MODAL */
 .overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(13,32,23,.45);backdrop-filter:blur(6px);align-items:flex-end}
+/* la confirmación puede abrirse sobre otro modal (p. ej. eliminar mascota desde edición): siempre arriba */
+#m-confirm{z-index:400}
 .overlay.open{display:flex}
 .sheet{background:var(--bg);border-radius:28px 28px 0 0;padding:10px 24px 48px;width:100%;max-height:88vh;overflow-y:auto;animation:sheetUp .35s cubic-bezier(.34,1.2,.64,1)}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
