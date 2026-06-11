@@ -334,6 +334,21 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
       </div>
     </button>
   </div>
+  <div class="quick-wrap" style="padding-top:0;margin-top:24px;">
+    <div class="section-label">Cerca tuyo</div>
+    <div class="quick-row">
+      <button class="quick-card" onclick="openMaps('veterinaria')">
+        <div class="quick-icon green"><svg class="ico green" viewBox="0 0 20 20"><path d="M10 18s-6-5.2-6-9.5a6 6 0 0112 0C16 12.8 10 18 10 18z"/><circle cx="10" cy="8.5" r="2.2"/></svg></div>
+        <div class="quick-card-title">Veterinarias cerca</div>
+        <div class="quick-card-sub">Abre el mapa de tu teléfono</div>
+      </button>
+      <button class="quick-card" onclick="openMaps('veterinaria 24 horas urgencias')">
+        <div class="quick-icon orange"><svg class="ico accent" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M10 6.5v3.5l2.5 2"/></svg></div>
+        <div class="quick-card-title">Urgencias 24 hs</div>
+        <div class="quick-card-sub">Para cuando no puede esperar</div>
+      </button>
+    </div>
+  </div>
 </div>
 <!-- ════ HISTORIAL ════ -->
 <div class="screen" id="screen-historial">
@@ -1288,6 +1303,15 @@ function askConfirm(msg, okLabel, cb) {
 function openRegSelector(title) {
   document.getElementById('reg-title').textContent = title || '¿Qué querés registrar?';
   openModal('m-registrar');
+}
+/* ───── VETERINARIAS CERCA ───── */
+function openMaps(query) {
+  /* mapa nativo: datos siempre al día y sin pedir ubicación nosotros (privacidad) */
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const url = ios
+    ? 'maps://?q=' + encodeURIComponent(query)
+    : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
+  window.open(url, '_blank');
 }
 /* ───── DONACIÓN ───── */
 function copyAlias() {
