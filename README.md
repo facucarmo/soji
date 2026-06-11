@@ -2,7 +2,7 @@
 
 **El cuidado de tu mascota, simple.** PWA para registrar vacunas, desparasitaciones, visitas al veterinario y peso. Sin cuentas, sin publicidad, gratis — todo se guarda en el dispositivo.
 
-**▶ App en vivo: https://facucarmo.github.io/soji/**
+**▶ App en vivo: https://soji.pet/**
 
 Para instalarla en el teléfono: abrir el link y "Agregar a pantalla de inicio" (iOS/Safari) o "Instalar app" (Android/Chrome).
 
