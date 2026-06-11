@@ -342,7 +342,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
         <div class="quick-card-title">Veterinarias cerca</div>
         <div class="quick-card-sub">Abre el mapa de tu teléfono</div>
       </button>
-      <button class="quick-card" onclick="openMaps('veterinaria 24 horas cerca de mí')">
+      <button class="quick-card" onclick="openMaps('veterinaria 24 horas')">
         <div class="quick-icon orange"><svg class="ico accent" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5"/><path d="M10 6.5v3.5l2.5 2"/></svg></div>
         <div class="quick-card-title">Urgencias 24 hs</div>
         <div class="quick-card-sub">Para cuando no puede esperar</div>
@@ -1306,12 +1306,10 @@ function openRegSelector(title) {
 }
 /* ───── VETERINARIAS CERCA ───── */
 function openMaps(query) {
-  /* mapa nativo: datos siempre al día y sin pedir ubicación nosotros (privacidad) */
-  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
-  const url = ios
-    ? 'maps://?q=' + encodeURIComponent(query)
-    : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query);
-  window.open(url, '_blank');
+  /* siempre Google Maps: Apple Maps resuelve mal estas búsquedas en español
+     (mandaba a Colombia/Brasil). En iOS el link universal abre la app de
+     Google Maps si está instalada, o la web si no. */
+  window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query), '_blank');
 }
 /* ───── DONACIÓN ───── */
 function copyAlias() {
