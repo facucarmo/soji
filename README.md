@@ -27,7 +27,9 @@ Los datos no salen del dispositivo: viven en `localStorage`, no hay servidor, no
 
 HTML + CSS + JavaScript vanilla, sin dependencias ni build.
 
-- `index.html` — toda la app (UI, estilos y lógica)
+- `index.html` — estructura (HTML) y símbolos SVG
+- `styles.css` — estilos
+- `app.js` — lógica (datos, render, IndexedDB de imágenes)
 - `manifest.webmanifest` — manifest de la PWA
 - `sw.js` — service worker (cache offline, app shell)
 - `icons/` — íconos de la app
