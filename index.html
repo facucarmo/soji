@@ -238,6 +238,24 @@ textarea.finput{resize:none;line-height:1.5}
 .hist-act:active{transform:scale(.93)}
 .hist-act.del{color:#B33A2B}
 .hist-act svg{width:12px;height:12px}
+/* TROQUEL (foto de libreta/vacuna) */
+.troquel-pick{width:100%;aspect-ratio:16/10;border-radius:var(--r-sm);background:var(--cream) center/cover no-repeat;border:2px dashed var(--ink-light);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;overflow:hidden;position:relative;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.troquel-pick:active{transform:scale(.98)}
+.troquel-pick.has{border:none}
+.troquel-pick.has .troquel-pick-label,.troquel-pick.has>svg{display:none}
+.troquel-pick>svg{width:30px;height:30px}
+.troquel-pick-label{font-size:12px;font-weight:600;color:var(--ink-light)}
+.troquel-remove{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(13,32,23,.55);border:none;color:#fff;font-size:15px;display:none;align-items:center;justify-content:center;cursor:pointer}
+.troquel-pick.has .troquel-remove{display:flex}
+.troquel-thumb{width:100%;height:120px;border-radius:10px;background:var(--cream) center/cover no-repeat;margin-top:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
+.troquel-thumb::after{content:'Ver foto del troquel';font-size:11px;font-weight:600;color:var(--ink-light)}
+.troquel-thumb.loaded::after{content:'⤢';position:absolute;right:8px;bottom:8px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:rgba(13,32,23,.55);color:#fff;font-size:14px;border-radius:8px}
+/* VISOR de imagen a pantalla completa */
+.overlay.viewer{align-items:center;justify-content:center;background:rgba(13,32,23,.93)}
+#m-viewer{z-index:500}
+.viewer-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:auto;touch-action:pinch-zoom;padding:24px}
+#viewer-img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.viewer-close{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.16);border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:501}
 /* TOAST */
 .toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:50%;transform:translateX(-50%) translateY(-70px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:100px;font-size:13px;font-weight:600;z-index:999;max-width:calc(100vw - 32px);white-space:normal;text-align:center;transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(13,32,23,.25)}
 .toast.show{transform:translateX(-50%) translateY(0)}
@@ -269,6 +287,7 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
   </defs>
 </svg>
 <input type="file" id="photo-input" accept="image/*" style="display:none">
+<input type="file" id="troquel-input" accept="image/*" style="display:none">
 <input type="file" id="import-input" accept=".json,application/json" style="display:none">
 <!-- SPLASH -->
 <div id="splash">
@@ -427,6 +446,11 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
     <button class="btn-g" onclick="closeOverlay('m-confirm')">Mejor no</button>
   </div>
 </div>
+<!-- VISOR DE TROQUEL -->
+<div class="overlay viewer" id="m-viewer" role="dialog" aria-modal="true" aria-label="Foto del troquel" onclick="closeOverlay('m-viewer',event)">
+  <button class="viewer-close" onclick="closeOverlay('m-viewer')" aria-label="Cerrar">✕</button>
+  <div class="viewer-wrap"><img id="viewer-img" alt="Foto del troquel"></div>
+</div>
 <!-- ════ PERFIL ════ -->
 <div class="screen" id="screen-perfil">
   <div id="perfil-box"></div>
@@ -481,6 +505,13 @@ svg.ico.accent{stroke:var(--accent)}svg.ico.green{stroke:var(--green)}svg.ico.in
       <div class="fg"><label class="flabel" for="v-next">Próximo refuerzo</label><input class="finput" id="v-next" type="date"></div>
     </div>
     <div class="fg"><label class="flabel" for="v-vet">Veterinario o clínica</label><input class="finput" id="v-vet" type="text" placeholder="Opcional, pero útil"></div>
+    <div class="fg" id="v-troquel-wrap"><label class="flabel">Foto del troquel o la libreta (opcional)</label>
+      <div class="troquel-pick" id="v-troquel-pick" onclick="pickTroquel()" role="button" tabindex="0" aria-label="Agregar foto del troquel">
+        <svg class="ico light" viewBox="0 0 20 20"><path d="M3 7h3l1.5-2h5L14 7h3v9H3V7z"/><circle cx="10" cy="11" r="2.5"/></svg>
+        <span class="troquel-pick-label">Tocá para sacar o elegir la foto</span>
+        <button class="troquel-remove" type="button" onclick="removeTroquel(event)" aria-label="Quitar foto">✕</button>
+      </div>
+    </div>
     <button class="btn-p" onclick="saveVacuna()">Listo, guardar</button>
     <button class="btn-g" onclick="closeOverlay('m-vacuna')">Mejor no por ahora</button>
   </div>
@@ -580,6 +611,8 @@ const DONACION = { alias: 'soji.pet', titular: 'Facundo Jesús Carmona' };
 let DB = load();
 let histFilter = 'todo';
 let formPhoto = null;
+/* troquel del formulario de vacuna: none | keep (id existente) | new (blob nuevo) | removed */
+let formTroquel = { state: 'none' };
 let petModalMode = 'create';
 let editing = null; /* { type, id } cuando se edita un registro existente */
 const REC_KEYS = { vacuna: 'vaccines', desp: 'dewormings', visita: 'visits', peso: 'weights' };
@@ -662,6 +695,74 @@ function parseKg(s) {
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+/* ───── IMÁGENES (IndexedDB) ─────
+   Las fotos de troqueles viven acá, no en localStorage: pesan más (deben ser
+   legibles) y en iPhone localStorage es chico y volátil. IndexedDB guarda blobs
+   nativos, sin inflar a base64, con mucha más capacidad. */
+const IMG_DB = 'soji-images', IMG_STORE = 'images';
+const imagesOK = typeof indexedDB !== 'undefined';
+let _imgdb = null;
+function imgDB() {
+  if (_imgdb) return Promise.resolve(_imgdb);
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(IMG_DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(IMG_STORE);
+    req.onsuccess = () => { _imgdb = req.result; res(_imgdb); };
+    req.onerror = () => rej(req.error);
+  });
+}
+function imgPut(id, blob) {
+  return imgDB().then(db => new Promise((res, rej) => {
+    const tx = db.transaction(IMG_STORE, 'readwrite');
+    tx.objectStore(IMG_STORE).put(blob, id);
+    tx.oncomplete = () => res(id);
+    tx.onerror = () => rej(tx.error);
+  }));
+}
+function imgGet(id) {
+  if (!id || !imagesOK) return Promise.resolve(null);
+  return imgDB().then(db => new Promise((res) => {
+    const r = db.transaction(IMG_STORE, 'readonly').objectStore(IMG_STORE).get(id);
+    r.onsuccess = () => res(r.result || null);
+    r.onerror = () => res(null);
+  })).catch(() => null);
+}
+function imgDel(id) {
+  if (!id || !imagesOK) return Promise.resolve();
+  return imgDB().then(db => new Promise((res) => {
+    const tx = db.transaction(IMG_STORE, 'readwrite');
+    tx.objectStore(IMG_STORE).delete(id);
+    tx.oncomplete = () => res(); tx.onerror = () => res();
+  })).catch(() => {});
+}
+/* achica una imagen a maxEdge px en el lado largo y la entrega como Blob JPEG */
+function resizeToBlob(file, maxEdge) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = function () {
+      const img = new Image();
+      img.onload = function () {
+        const s = Math.min(1, maxEdge / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * s);
+        c.height = Math.round(img.height * s);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        c.toBlob(b => b ? res(b) : rej(new Error('toBlob')), 'image/jpeg', 0.82);
+      };
+      img.onerror = rej; img.src = reader.result;
+    };
+    reader.onerror = rej; reader.readAsDataURL(file);
+  });
+}
+function blobToDataURL(blob) {
+  return new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(blob); });
+}
+function dataURLToBlob(durl) {
+  const parts = durl.split(','), mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+  const bin = atob(parts[1]), arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
 }
 /* ───── EVENTOS PRÓXIMOS ───── */
 function upcoming(p) {
@@ -781,7 +882,7 @@ function buildEvents(p) {
       meta: 'Vacuna · ' + fmtDate(v.date) + (v.vet ? ' · ' + v.vet : ''),
       /* el refuerzo solo es "pendiente" en la aplicación vigente; en las viejas confunde */
       note: isLatest && v.next ? 'Refuerzo: ' + fmtDate(v.next) : '', next: v.next,
-      isLatest: isLatest
+      isLatest: isLatest, troquel: v.troquel || null
     });
   });
   /* desparasitaciones vigentes por cobertura (mismo criterio que las alertas) */
@@ -858,6 +959,7 @@ function renderHistorial() {
     (e.type === 'vacuna' && e.isLatest ? vacBadge(e.next) : '') + '</div>' +
     '<div class="hist-meta">' + esc(e.meta) + '</div>' +
     (e.note ? '<div class="hist-note">' + esc(e.note) + '</div>' : '') +
+    (e.troquel ? '<div class="troquel-thumb" data-troquel="' + e.troquel + '" onclick="openTroquel(\'' + e.troquel + '\')" role="button" tabindex="0" aria-label="Ver foto del troquel"></div>' : '') +
     '<div class="hist-actions">' +
     '<button class="hist-act" onclick="openEdit(\'' + e.type + '\',\'' + e.id + '\')">' +
     '<svg class="ico mid" viewBox="0 0 20 20"><path d="M13 4l3 3-8 8-4 1 1-4 8-8z"/></svg>Editar</button>' +
@@ -865,6 +967,29 @@ function renderHistorial() {
     '<svg viewBox="0 0 20 20" fill="none" stroke="#B33A2B" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10"/></svg>Eliminar</button>' +
     '</div></div></div>';
   }).join('');
+  hydrateTroquels();
+}
+/* carga las miniaturas de troquel (async) después de pintar el historial */
+let _troquelURLs = [];
+function hydrateTroquels() {
+  _troquelURLs.forEach(u => URL.revokeObjectURL(u));
+  _troquelURLs = [];
+  document.querySelectorAll('#hist-list [data-troquel]').forEach(el => {
+    imgGet(el.getAttribute('data-troquel')).then(b => {
+      if (!b) return;
+      const url = URL.createObjectURL(b);
+      _troquelURLs.push(url);
+      el.style.backgroundImage = 'url(' + url + ')';
+      el.classList.add('loaded');
+    });
+  });
+}
+function openTroquel(id) {
+  imgGet(id).then(b => {
+    if (!b) { showToast('No encontré la foto'); return; }
+    document.getElementById('viewer-img').src = URL.createObjectURL(b);
+    openModal('m-viewer');
+  });
 }
 /* ───── RENDER: PERFIL ───── */
 function weightChartSVG(ws) {
@@ -957,6 +1082,58 @@ function pickPhoto() {
   };
   inp.click();
 }
+/* ───── TROQUEL: SELECTOR EN EL FORM DE VACUNA ───── */
+function pickTroquel() {
+  if (!imagesOK) { showToast('Tu navegador no permite guardar fotos'); return; }
+  const inp = document.getElementById('troquel-input');
+  inp.onchange = function () {
+    const f = inp.files && inp.files[0];
+    inp.value = '';
+    if (!f) return;
+    resizeToBlob(f, 1600).then(blob => {
+      formTroquel = { state: 'new', blob: blob };
+      showTroquelPreview(URL.createObjectURL(blob));
+    }).catch(() => showToast('No pude procesar la foto'));
+  };
+  inp.click();
+}
+function showTroquelPreview(url) {
+  const el = document.getElementById('v-troquel-pick');
+  el.classList.add('has');
+  el.style.backgroundImage = 'url(' + url + ')';
+}
+function resetTroquelPick() {
+  const el = document.getElementById('v-troquel-pick');
+  el.classList.remove('has');
+  el.style.backgroundImage = '';
+}
+function removeTroquel(e) {
+  e.stopPropagation();
+  formTroquel = { state: 'removed' };
+  resetTroquelPick();
+}
+/* carga en el form el troquel de un registro existente (al editar) */
+function loadTroquelInto(id) {
+  if (id) {
+    formTroquel = { state: 'keep', id: id };
+    imgGet(id).then(b => { if (b && formTroquel.id === id) showTroquelPreview(URL.createObjectURL(b)); });
+  } else {
+    formTroquel = { state: 'none' };
+    resetTroquelPick();
+  }
+}
+/* resuelve el id final del troquel al guardar: persiste el nuevo, borra el viejo */
+function commitTroquel(oldId) {
+  if (formTroquel.state === 'new') {
+    const id = uid();
+    return imgPut(id, formTroquel.blob).then(() => { if (oldId) imgDel(oldId); return id; });
+  }
+  if (formTroquel.state === 'removed') {
+    if (oldId) imgDel(oldId);
+    return Promise.resolve(null);
+  }
+  return Promise.resolve(oldId || null); /* keep / none */
+}
 /* ───── MASCOTA: CREAR / EDITAR ───── */
 function setChips(groupId, value) {
   document.querySelectorAll('#' + groupId + ' .chip').forEach(c =>
@@ -1027,6 +1204,7 @@ function savePetForm() {
 function deletePet() {
   const p = pet();
   askConfirm('Vas a eliminar a ' + p.name + ' y todo su historial. Esto no se puede deshacer.', 'Sí, eliminar a ' + p.name, function () {
+    (p.vaccines || []).forEach(v => { if (v.troquel) imgDel(v.troquel); });
     DB.pets = DB.pets.filter(x => x.id !== p.id);
     DB.active = DB.pets.length ? DB.pets[0].id : null;
     save();
@@ -1046,6 +1224,7 @@ function openReg(id) {
   (fields[id] || []).forEach(f => document.getElementById(f).value = '');
   const dates = { 'm-vacuna': 'v-date', 'm-desp': 'd-date', 'm-visita': 'vi-date', 'm-peso': 'w-date' };
   document.getElementById(dates[id]).value = today();
+  if (id === 'm-vacuna') { formTroquel = { state: 'none' }; resetTroquelPick(); }
   openModal(id);
 }
 function findRecord(type, id) {
@@ -1060,6 +1239,7 @@ function openEdit(type, id) {
     document.getElementById('v-date').value = r.date;
     document.getElementById('v-next').value = r.next || '';
     document.getElementById('v-vet').value = r.vet || '';
+    loadTroquelInto(r.troquel);
     openModal('m-vacuna');
   } else if (type === 'desp') {
     setChips('d-type', r.type);
@@ -1083,6 +1263,7 @@ function deleteRecord(type, id) {
   const labels = { vacuna: 'esta vacuna', desp: 'esta desparasitación', visita: 'esta visita', peso: 'este registro de peso' };
   askConfirm('Vas a eliminar ' + labels[type] + '. Esto no se puede deshacer.', 'Sí, eliminar', function () {
     const p = pet();
+    if (type === 'vacuna') { const r = findRecord('vacuna', id); if (r && r.troquel) imgDel(r.troquel); }
     p[REC_KEYS[type]] = (p[REC_KEYS[type]] || []).filter(r => r.id !== id);
     save(); renderAll(); showToast('Registro eliminado');
   });
@@ -1101,10 +1282,15 @@ function saveVacuna() {
   const name = document.getElementById('v-name').value.trim();
   const date = document.getElementById('v-date').value;
   if (!name || !date) { showToast('Falta el nombre o la fecha'); return; }
-  const edited = upsert('vacuna', { name: name, date: date, next: document.getElementById('v-next').value || null, vet: document.getElementById('v-vet').value.trim() });
-  save();
-  ['v-name', 'v-next', 'v-vet'].forEach(i => document.getElementById(i).value = '');
-  closeOverlay('m-vacuna'); renderAll(); showToast(edited ? 'Vacuna actualizada' : 'Vacuna guardada');
+  const existing = editing && editing.type === 'vacuna' ? findRecord('vacuna', editing.id) : null;
+  const oldId = existing ? existing.troquel : null;
+  commitTroquel(oldId).then(troquelId => {
+    const edited = upsert('vacuna', { name: name, date: date, next: document.getElementById('v-next').value || null, vet: document.getElementById('v-vet').value.trim(), troquel: troquelId });
+    save();
+    ['v-name', 'v-next', 'v-vet'].forEach(i => document.getElementById(i).value = '');
+    formTroquel = { state: 'none' }; resetTroquelPick();
+    closeOverlay('m-vacuna'); renderAll(); showToast(edited ? 'Vacuna actualizada' : 'Vacuna guardada');
+  }).catch(() => showToast('No pude guardar la foto del troquel'));
 }
 function saveDesp() {
   const date = document.getElementById('d-date').value;
@@ -1135,13 +1321,21 @@ function savePeso() {
 /* ───── RESPALDO: EXPORTAR / IMPORTAR ───── */
 function exportData() {
   if (!DB.pets.length) { showToast('No hay nada para exportar todavía'); return; }
-  const blob = new Blob([JSON.stringify({ app: 'soji', version: 1, exported: new Date().toISOString(), data: DB }, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'soji-respaldo-' + today() + '.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-  showToast('Respaldo descargado');
+  /* incluir las fotos de troqueles (de IndexedDB) para que el respaldo sea completo */
+  const ids = [];
+  DB.pets.forEach(p => (p.vaccines || []).forEach(v => { if (v.troquel) ids.push(v.troquel); }));
+  if (ids.length) showToast('Preparando respaldo…');
+  const images = {};
+  Promise.all(ids.map(id => imgGet(id).then(b => b ? blobToDataURL(b).then(d => { images[id] = d; }) : null)))
+    .then(() => {
+      const blob = new Blob([JSON.stringify({ app: 'soji', version: 2, exported: new Date().toISOString(), data: DB, images: images }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'soji-respaldo-' + today() + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      showToast('Respaldo descargado');
+    });
 }
 function importData() {
   const inp = document.getElementById('import-input');
@@ -1158,6 +1352,9 @@ function importData() {
         const names = db.pets.map(p => p.name).join(', ') || '(sin mascotas)';
         askConfirm('Esto reemplaza los datos actuales por el respaldo (' + db.pets.length + ' mascota/s: ' + names + ').', 'Sí, restaurar', function () {
           migrate(db);
+          if (parsed.images && imagesOK) {
+            Object.keys(parsed.images).forEach(id => { try { imgPut(id, dataURLToBlob(parsed.images[id])); } catch (e) {} });
+          }
           DB = db;
           if (!DB.pets.find(p => p.id === DB.active)) DB.active = DB.pets.length ? DB.pets[0].id : null;
           save();
@@ -1251,6 +1448,7 @@ function alertAction(action) {
       document.getElementById('v-date').value = today();
       document.getElementById('v-next').value = '';
       document.getElementById('v-vet').value = r.vet || '';
+      formTroquel = { state: 'none' }; resetTroquelPick();
       openModal('m-vacuna');
     } else {
       setChips('d-type', r.type);
@@ -1373,6 +1571,7 @@ document.addEventListener('keydown', function (e) {
   }
   document.getElementById('don-alias').textContent = DONACION.alias;
   document.getElementById('don-titular').textContent = DONACION.titular;
+  if (!imagesOK) document.getElementById('v-troquel-wrap').style.display = 'none';
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }

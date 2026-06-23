@@ -1,5 +1,5 @@
 /* Soji service worker — app shell cache-first, fuentes runtime */
-const VERSION = 'soji-v3';
+const VERSION = 'soji-v4';
 const SHELL = [
   './',
   './index.html',
