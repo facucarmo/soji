@@ -429,14 +429,14 @@ function renderPerfil() {
     '<button class="hist-act" style="background:var(--cream)" onclick="toggleNotif()">' +
     ({ on: 'Activados ✓', off: 'Activar', denied: 'Bloqueados', unsupported: 'No disponible' }[notifState()]) +
     '</button></div>' +
-    '<div class="info-row" style="border:none;padding-top:0"><span style="font-size:12px;color:var(--ink-light);line-height:1.5">Al abrir la app, te avisamos si algo vence en los próximos 7 días.</span></div>' +
+    '<div class="info-row" style="border:none;padding-top:10px"><span style="font-size:12px;color:var(--ink-light);line-height:1.5">Al abrir la app, te avisamos si algo vence en los próximos 7 días.</span></div>' +
     '</div>' +
     '<div class="info-card"><div class="info-card-header">Tus datos</div>' +
     '<div class="info-row"><span class="info-key">Exportar respaldo</span>' +
     '<button class="hist-act" style="background:var(--cream)" onclick="exportData()">Descargar .json</button></div>' +
     '<div class="info-row"><span class="info-key">Restaurar respaldo</span>' +
     '<button class="hist-act" style="background:var(--cream)" onclick="importData()">Elegir archivo</button></div>' +
-    '<div class="info-row" style="border:none;padding-top:0"><span style="font-size:12px;color:var(--ink-light);line-height:1.5">Todo vive en este dispositivo. Guardá un respaldo de vez en cuando, o para pasar a otro teléfono.</span></div>' +
+    '<div class="info-row" style="border:none;padding-top:10px"><span style="font-size:12px;color:var(--ink-light);line-height:1.5">Todo vive en este dispositivo. Guardá un respaldo de vez en cuando, o para pasar a otro teléfono.</span></div>' +
     '</div>' +
     '<div class="info-card" onclick="showScreen(\'donaciones\')" style="cursor:pointer">' +
     '<div class="info-row"><span class="info-key" style="display:flex;align-items:center;gap:10px">' +
@@ -639,7 +639,7 @@ function openEdit(type, id) {
     setChips('d-type', r.type);
     document.getElementById('d-product').value = r.product || '';
     document.getElementById('d-date').value = r.date;
-    document.getElementById('d-repeat').value = String(r.repeat || 3);
+    document.getElementById('d-repeat').value = String(r.repeat != null ? r.repeat : 3);
     openModal('m-desp');
   } else if (type === 'visita') {
     document.getElementById('vi-reason').value = r.reason || '';
@@ -848,7 +848,7 @@ function alertAction(action) {
       setChips('d-type', r.type);
       document.getElementById('d-product').value = r.product || '';
       document.getElementById('d-date').value = today();
-      document.getElementById('d-repeat').value = String(r.repeat || 3);
+      document.getElementById('d-repeat').value = String(r.repeat != null ? r.repeat : 3);
       openModal('m-desp');
     }
   } else if (action === 'ics') {
