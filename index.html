@@ -145,38 +145,6 @@
   <div class="section-block" id="hist-list"></div>
   <button class="fab" onclick="openRegSelector()" aria-label="Registrar algo nuevo">+</button>
 </div>
-<!-- ════ DONACIONES ════ -->
-<div class="screen" id="screen-donaciones">
-  <div style="padding:56px 24px 0">
-    <button class="hist-act" style="background:var(--cream)" onclick="showScreen('perfil')">← Volver al perfil</button>
-  </div>
-  <div class="don-hero">
-    <svg class="don-hero-bg" viewBox="0 0 80 80" fill="white"><use href="#paw"/></svg>
-    <svg class="don-hero-bg-2" viewBox="0 0 80 80" fill="white"><use href="#paw"/></svg>
-    <div class="don-hero-eyebrow">Soji es gratis, siempre.</div>
-    <div class="don-hero-title">Si te ayuda,<br>devolvé el amor.</div>
-    <div class="don-hero-body">No hay publicidad, no vendemos tus datos. Solo personas que cuidan a sus mascotas, ayudando a mantener esto vivo.</div>
-  </div>
-  <div class="don-note">Elegís el monto al donar, según tu moneda. Cada peso va al servidor, el dominio y el tiempo que le dedicamos.</div>
-  <div style="padding:0 24px;">
-    <button class="btn-p" onclick="openModal('m-donar')">Apoyar ahora</button>
-    <button class="btn-g" onclick="showScreen('perfil');showToast('¡Está bien! Soji sigue siendo gratis')">Quizás en otro momento</button>
-  </div>
-</div>
-<!-- DONAR: DATOS DE TRANSFERENCIA -->
-<div class="overlay" id="m-donar" role="dialog" aria-modal="true" onclick="closeOverlay('m-donar',event)">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title"><span class="quick-icon green"><svg class="ico green" viewBox="0 0 20 20"><path d="M10 16s-7-4.5-7-9a4 4 0 018 0 4 4 0 018 0c0 4.5-7 9-7 9z"/></svg></span>¡Gracias por apoyar!</div>
-    <div class="info-card" style="margin:0 0 14px;">
-      <div class="info-card-header">Transferencia (Argentina)</div>
-      <div class="info-row"><span class="info-key">Alias</span><span class="info-val" id="don-alias"></span></div>
-      <div class="info-row"><span class="info-key">Titular</span><span class="info-val" id="don-titular"></span></div>
-    </div>
-    <button class="btn-p" onclick="copyAlias()">Copiar alias</button>
-    <button class="btn-g" onclick="closeOverlay('m-donar')">Volver</button>
-  </div>
-</div>
 <!-- ACCIONES DE ALERTA -->
 <div class="overlay" id="m-alerta" role="dialog" aria-modal="true" onclick="closeOverlay('m-alerta',event)">
   <div class="sheet">

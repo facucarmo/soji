@@ -144,14 +144,6 @@ body.onboarding .tabbar{display:none}
 .empty-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink-mid)}
 .empty-sub{font-size:13px;color:var(--ink-light);margin-top:6px;line-height:1.5;max-width:240px}
 .empty .btn-p{margin-top:20px;width:auto;padding:13px 26px;font-size:15px}
-/* DONACIONES */
-.don-hero{margin:16px 24px 24px;background:radial-gradient(circle at 12% 88%,rgba(255,255,255,.12),transparent 50%),linear-gradient(150deg,#5C9C78,#3F7A59 70%);border-radius:28px;padding:32px 28px;position:relative;overflow:hidden}
-.don-hero-bg{position:absolute;right:-24px;bottom:-24px;opacity:.12;width:140px}
-.don-hero-bg-2{position:absolute;right:100px;top:16px;opacity:.07;width:64px;transform:rotate(-20deg)}
-.don-hero-eyebrow{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px}
-.don-hero-title{font-family:'Fraunces',serif;font-size:30px;font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.5px}
-.don-hero-body{font-size:14px;color:rgba(255,255,255,.75);margin-top:10px;line-height:1.6}
-.don-note{margin:0 24px 20px;background:var(--green-soft);border-radius:var(--r-sm);padding:14px 16px;font-size:13px;color:var(--green);line-height:1.5;font-weight:500}
 /* PERFIL */
 .perfil-hero{padding:60px 24px 28px;display:flex;align-items:flex-end;justify-content:space-between}
 .perfil-eyebrow{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px}

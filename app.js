@@ -1,7 +1,6 @@
 /* ───── DATOS ───── */
 const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 /* datos de donación — reemplazar por los reales */
-const DONACION = { alias: 'soji.pet', titular: 'Facundo Jesús Carmona' };
 let DB = load();
 let histFilter = 'todo';
 let formPhoto = null;
@@ -437,11 +436,6 @@ function renderPerfil() {
     '<div class="info-row"><span class="info-key">Restaurar respaldo</span>' +
     '<button class="hist-act" style="background:var(--cream)" onclick="importData()">Elegir archivo</button></div>' +
     '<div class="info-row" style="border:none;padding-top:10px"><span style="font-size:12px;color:var(--ink-light);line-height:1.5">Todo vive en este dispositivo. Guardá un respaldo de vez en cuando, o para pasar a otro teléfono.</span></div>' +
-    '</div>' +
-    '<div class="info-card" onclick="showScreen(\'donaciones\')" style="cursor:pointer">' +
-    '<div class="info-row"><span class="info-key" style="display:flex;align-items:center;gap:10px">' +
-    '<svg class="ico green" style="width:18px;height:18px" viewBox="0 0 20 20"><path d="M10 16s-7-4.5-7-9a4 4 0 018 0 4 4 0 018 0c0 4.5-7 9-7 9z"/></svg>' +
-    'Apoyar a Soji</span><span class="info-val" style="color:var(--ink-light)">›</span></div>' +
     '</div>' +
     '<div style="padding:0 24px;">' +
     '<button class="btn-p" onclick="openPetModal(\'edit\')" style="background:var(--ink);box-shadow:none;">Editar perfil de ' + esc(p.name) + '</button>' +
@@ -903,13 +897,6 @@ function openMaps(query) {
      Google Maps si está instalada, o la web si no. */
   window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query), '_blank');
 }
-/* ───── DONACIÓN ───── */
-function copyAlias() {
-  const done = () => showToast('Alias copiado: ' + DONACION.alias);
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(DONACION.alias).then(done).catch(() => showToast(DONACION.alias));
-  } else { showToast(DONACION.alias); }
-}
 /* ───── NAVEGACIÓN / UI ───── */
 function renderAll() { renderInicio(); renderHistorial(); renderPerfil(); }
 function showScreen(name) {
@@ -963,8 +950,6 @@ document.addEventListener('keydown', function (e) {
     if (!DB.pets.find(p => p.id === DB.active)) DB.active = DB.pets[0].id;
     showScreen('inicio');
   }
-  document.getElementById('don-alias').textContent = DONACION.alias;
-  document.getElementById('don-titular').textContent = DONACION.titular;
   if (!imagesOK) document.getElementById('v-troquel-wrap').style.display = 'none';
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch(() => {});
